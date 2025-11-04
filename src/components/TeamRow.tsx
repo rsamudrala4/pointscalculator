@@ -20,6 +20,30 @@ function TeamRow({ team, onUpdate }: TeamRowProps) {
     onUpdate(team.slot, { finishes: newFinishes });
   };
 
+  const handleFinishesInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Allow empty string for better UX while typing
+    if (value === '') {
+      onUpdate(team.slot, { finishes: 0 });
+      return;
+    }
+    // Only allow numeric input (positive integers)
+    if (/^\d+$/.test(value)) {
+      const numValue = parseInt(value, 10);
+      if (!isNaN(numValue) && numValue >= 0) {
+        onUpdate(team.slot, { finishes: numValue });
+      }
+    }
+  };
+
+  const handleFinishesInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Ensure value is valid on blur
+    const value = e.target.value;
+    if (value === '' || isNaN(parseInt(value, 10))) {
+      onUpdate(team.slot, { finishes: 0 });
+    }
+  };
+
   return (
     <tr className="border-b border-gray-700 hover:bg-gray-700">
       <td className="px-2 sm:px-3 py-2 sm:py-4 text-xs sm:text-sm font-semibold text-gray-300">
@@ -50,9 +74,15 @@ function TeamRow({ team, onUpdate }: TeamRowProps) {
           >
             <Minus size={14} className="sm:w-4 sm:h-4" />
           </button>
-          <span className="w-8 sm:w-12 text-center font-semibold text-white text-xs sm:text-sm">
-            {team.finishes}
-          </span>
+          <input
+            type="text"
+            value={team.finishes}
+            onChange={handleFinishesInputChange}
+            onBlur={handleFinishesInputBlur}
+            className="w-12 sm:w-16 text-center font-semibold text-white text-xs sm:text-sm bg-gray-700 border-2 border-gray-600 rounded px-1 py-1 focus:border-pink-500 focus:outline-none"
+            inputMode="numeric"
+            pattern="[0-9]*"
+          />
           <button
             onClick={() => handleFinishesChange(1)}
             className="p-1 bg-green-600 hover:bg-green-700 text-white rounded transition-colors text-xs sm:text-sm"
